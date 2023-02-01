@@ -1,0 +1,50 @@
+public class nonconformanceTriggerHandler {
+    
+    public static void beforeInsert(list<SQX_Nonconformance__c> noncofList){
+        commonMethod(noncofList);
+    }
+    public static void beforeUpdate(list<SQX_Nonconformance__c> noncofList, Map<id,SQX_Nonconformance__c> noncofMap){
+        commonMethod(noncofList);
+    }
+    public static void commonMethod(list<SQX_Nonconformance__c> noncofList){
+        Set<id> caseIds = new Set<Id>();
+        for(SQX_Nonconformance__c sc: noncofList){
+            if(sc.Case__c != null){
+                caseIds.add(sc.Case__c);
+            }
+        }
+        Map<id,Case> casemap = new Map<Id,Case>([select id,(select id from Nonconformances__r) from Case where id in:caseIds]);
+        for(SQX_Nonconformance__c sc : noncofList){
+            if(casemap.get(sc.Case__c).Nonconformances__r.size() > 0){
+                sc.addError('already child Nonconformance exist for same case');
+            }
+        }
+    }
+    public static void afterInsert(list<SQX_Nonconformance__c> noncofList){
+        commonMethodtoUpdateCaseField(noncofList);
+    }
+    public static void afterupdate(list<SQX_Nonconformance__c> noncofList, Map<id,SQX_Nonconformance__c> noncofMap){
+        commonMethodtoUpdateCaseField(noncofList);
+    }
+    public static void commonMethodtoUpdateCaseField(list<SQX_Nonconformance__c> noncofList){
+        Set<id> caseIds = new Set<Id>();
+        for(SQX_Nonconformance__c sc: noncofList){
+            if(sc.Case__c != null){
+                caseIds.add(sc.Case__c);
+            }
+        }
+        Map<id,Case> casemap = new Map<Id,Case>([select id,SQX_NC_Reference__c,(select id from Nonconformances__r limit 1) from Case where id in:caseIds]);
+        List<Case> cList = new List<Case>();
+        for(SQX_Nonconformance__c sc:noncofList){
+            if(sc.Case__c != null){
+                Case ca = new Case();
+                ca.Id = sc.Case__c;
+                ca.SQX_NC_Reference__c = casemap.get(sc.Case__c).Nonconformances__r.get(0).Id;
+                cList.add(ca);
+            }
+        }
+        if(cList.size()>0){
+            update cList;
+        }
+    }
+}
