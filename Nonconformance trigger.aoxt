@@ -1,0 +1,17 @@
+trigger nonconformanceTrigger on SQX_Nonconformance__c (before insert,before update,after insert,after update) {
+
+    if(Trigger.isBefore){
+        if(Trigger.isInsert){
+            nonconformanceTriggerHandler.beforeInsert(trigger.new);
+        }else if(Trigger.isUpdate){
+            nonconformanceTriggerHandler.beforeupdate(trigger.new,trigger.oldmap);
+        }
+    }
+    else if(Trigger.isAfter){
+        if(Trigger.isInsert){
+            nonconformanceTriggerHandler.afterInsert(trigger.new);
+        }else if(Trigger.isUpdate){
+            nonconformanceTriggerHandler.afterupdate(trigger.new,trigger.oldmap);
+        }
+    }
+}
