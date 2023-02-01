@@ -1,0 +1,42 @@
+public class caseTriggerHandler {
+    
+    public static void afterInsertMethod(List<Case> caseList){
+        List<SQX_Nonconformance__c> noncofList = new List<SQX_Nonconformance__c>();
+        for(Case ca:caseList){
+            if(ca.Type == 'Problem'){
+                SQX_Nonconformance__c sc = new SQX_Nonconformance__c();
+                sc.Case__c = ca.Id;
+                sc.Priority__c = ca.Priority;
+                sc.Title__c = ca.Subject;
+                sc.Description__c = ca.Description;
+                sc.QMS_REFERENCE_NUMBER__c = ca.CaseNumber;
+                noncofList.add(sc);
+            }
+        }
+        if(noncofList.size()>0){
+            insert noncofList;
+        }
+    }
+    public static void afterUpdateMethod(List<Case> caseList, Map<id,case> caseMap){
+        List<SQX_Nonconformance__c> noncofList = new List<SQX_Nonconformance__c>();
+        for(Case ca:caseList){
+            if(ca.Type == 'Problem' && ca.Type != caseMap.get(ca.Id).Type){
+                SQX_Nonconformance__c sc = new SQX_Nonconformance__c();
+                sc.Case__c = ca.Id;
+                sc.Priority__c = ca.Priority;
+                sc.Title__c = ca.Subject;
+                sc.Description__c = ca.Description;
+                sc.QMS_REFERENCE_NUMBER__c = ca.CaseNumber;
+                noncofList.add(sc);
+            }
+        }
+        try{
+        	if(noncofList.size()>0){
+        	    insert noncofList;
+        	}
+        }
+        catch(Exception e){
+            System.debug('message --> '+ e.getMessage());
+        }
+    }
+}
