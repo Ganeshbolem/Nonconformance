@@ -1,0 +1,10 @@
+trigger caseTrigger on Case (after insert,after update) {
+
+	if(Trigger.isAfter){
+        if(Trigger.isInsert){
+            caseTriggerHandler.afterInsertMethod(Trigger.New);
+        }else if(Trigger.isUpdate){
+            caseTriggerHandler.afterUpdateMethod(Trigger.New, Trigger.OldMap);
+        }
+    }
+}
